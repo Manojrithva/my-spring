@@ -1,0 +1,34 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('SCM') {
+            steps {
+                git credentialsId: '9dbdb293-54f3-4d68-af95-a0dc69eda6b0', url: 'https://github.com/Manojrithva/spring3-mvc-maven-xml-hello-world.git'
+            }
+        }
+        stage('Build') { 
+            steps { 
+                 sh "mvn -Dmaven.test.failure.ignore=true clean package"
+            }
+        }
+         stage ('Artifacts') {
+            steps {
+                
+                 archiveArtifacts 'target/*.war'
+            }
+         } 
+          stage('deploy') {
+            steps {
+                // Tomcat deploy
+                    
+              withCredentials([usernameColonPassword(credentialsId: '2521ed73-de3b-4c9d-af3b-33e99a4ac2f3', variable: 'rithva')]) {sh "curl -v -u ${rithva} -T /var/lib/jenkins/workspace/spring3/target/spring3-mvc-maven-xml-hello-world-1.0-SNAPSHOT.war 'http://65.0.96.71:8081/manager/text/deploy?path=/spring5&update=true'"
+                  
+               }    
+           
+            
+           } 
+         
+        }
+}
+}            
